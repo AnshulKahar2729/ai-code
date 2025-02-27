@@ -11,6 +11,8 @@ import { useLocalStorage } from "usehooks-ts";
 import modelsList from "@/lib/models.json";
 import { ChatPicker } from "@/components/chat-picker";
 import templates from "@/lib/templates";
+import { ChatSettings } from "@/components/chat-settings";
+import { LLMModelConfig } from "@/lib/models";
 
 export default function Home() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
@@ -22,10 +24,16 @@ export default function Home() {
   const [languageModel, setLanguageModel] = useLocalStorage("languageModel", {
     model: "gpt-4o-mini",
   });
+
+  const [messages, setMessages] = useState<Messag[]>([]);
   function logout() {
     supabase
       ? supabase.auth.signOut()
       : console.warn("Supabase is not initialized");
+  }
+
+  function handleLanguageModelChange(e : LLMModelConfig){
+    setLanguageModel({...languageModel, ...e})
   }
   return (
     <div className="flex min-h-screen max-h-screen">
@@ -71,6 +79,12 @@ export default function Home() {
               onLanguageModelChange={() => {}}
               onSelectedTemplateChange={() => {}}
               selectedTemplate={selectedTemplate}
+            />
+            <ChatSettings
+              apiKeyConfigurable={true}
+              baseURLConfigurable={true}
+              languageModel={languageModel}
+              onLanguageModelChange={() => {}}
             />
           </ChatInput>
         </div>
