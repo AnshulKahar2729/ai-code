@@ -1,16 +1,27 @@
 "use client";
 
 import AuthDialog from "@/components/auth-dialog";
+import { Chat } from "@/components/chat";
+import { ChatInput } from "@/components/chat-input";
 import { NavBar } from "@/components/navbar";
 import { AuthViewType, useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useState } from "react";
+import { useLocalStorage } from "usehooks-ts";
+import modelsList from "@/lib/models.json";
+import { ChatPicker } from "@/components/chat-picker";
+import templates from "@/lib/templates";
 
 export default function Home() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [authView, setAuthView] = useState<AuthViewType>("sign_in");
-  const {session}  = useAuth(setIsAuthDialogOpen, setAuthView);
-
+  const { session } = useAuth(setIsAuthDialogOpen, setAuthView);
+  const [chatInput, setChatInput] = useLocalStorage("chat", "");
+  const [files, setFiles] = useState<File[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<"auto">("auto");
+  const [languageModel, setLanguageModel] = useLocalStorage("languageModel", {
+    model: "gpt-4o-mini",
+  });
   function logout() {
     supabase
       ? supabase.auth.signOut()
@@ -27,15 +38,41 @@ export default function Home() {
         />
       )}
       <div className="grid w-full md:grid-cols-2">
-        <div>
+        <div className="flex flex-col w-full max-w-[800px] mx-auto px-4 overflow-auto col-span-2">
           <NavBar
-          session={session}
-          showLogin={() => {
-            setIsAuthDialogOpen(true);
-          }}
-          signOut={logout}
-        
+            canClear={false}
+            canUndo={false}
+            onClear={() => {}}
+            onSocialClick={() => {}}
+            onUndo={() => {}}
+            session={session}
+            showLogin={() => {
+              setIsAuthDialogOpen(true);
+            }}
+            signOut={logout}
           />
+          <Chat />
+          <ChatInput
+            isLoading={false}
+            input={chatInput}
+            handleInputChange={() => {}}
+            handleFileChange={() => {}}
+            files={files}
+            error={undefined}
+            retry={() => {}}
+            isMultiModal={false}
+            stop={() => {}}
+            handleSubmit={() => {}}
+          >
+            <ChatPicker
+              models={modelsList.models}
+              templates={templates as any}
+              languageModel={languageModel}
+              onLanguageModelChange={() => {}}
+              onSelectedTemplateChange={() => {}}
+              selectedTemplate={selectedTemplate}
+            />
+          </ChatInput>
         </div>
       </div>
     </div>
