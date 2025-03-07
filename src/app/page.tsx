@@ -13,6 +13,9 @@ import { ChatPicker } from "@/components/chat-picker";
 import templates from "@/lib/templates";
 import { ChatSettings } from "@/components/chat-settings";
 import { LLMModelConfig } from "@/lib/models";
+import { Message } from "@/lib/messages";
+import { DeepPartial } from "ai";
+import { CodeSchema } from "@/lib/schema";
 
 export default function Home() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
@@ -25,7 +28,10 @@ export default function Home() {
     model: "gpt-4o-mini",
   });
 
-  const [messages, setMessages] = useState<Messag[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [code, setCode] = useState<DeepPartial<CodeSchema>>();
+  const [currentTab, setCurrentTab] = useState<"chat" | "code">("chat");
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   function logout() {
     supabase
       ? supabase.auth.signOut()
@@ -35,6 +41,17 @@ export default function Home() {
   function handleLanguageModelChange(e : LLMModelConfig){
     setLanguageModel({...languageModel, ...e})
   }
+
+
+  const currentModel = modelsList.models.find(
+    (model) => model.id === languageModel.model
+  );
+
+  const currentTemplate = selectedTemplate === "auto" ? templates : {[selectedTemplate]: templates[selectedTemplate]};
+
+  const lastMessage = messages[messages.length - 1];
+
+  
   return (
     <div className="flex min-h-screen max-h-screen">
       {supabase && (

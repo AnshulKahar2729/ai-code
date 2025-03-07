@@ -12,7 +12,7 @@
       "shadcn"
     ],
     "file": "pages/index.tsx",
-    "instructions": "A Next.js 13+ app that reloads automatically. Using the app router.",
+    "instructions": "A Next.js 13+ app that reloads automatically. Using the pages router.",
     "port": 3000
   }
 }
